@@ -104,9 +104,19 @@ button {
   border: 1px solid #ddd;
   font-size: 16px;
 }
+.submit {
+  background-color: #45a049;
+}
 
+.edit {
+  background-color: blue;
+}
+
+.delete {
+  background-color: red;
+}
 button {
-  background-color: #4caf50;
+  background-color: #45a049;
   color: white;
   border: none;
   cursor: pointer;
@@ -145,6 +155,10 @@ tr:hover {
 .actions button {
   width: auto;
   margin: 0 5px;
+}
+
+.action button .edit {
+  background-color: blue;
 }
 
 /* footer */

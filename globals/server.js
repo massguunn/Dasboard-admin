@@ -28,7 +28,7 @@ const init = async () => {
           location: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
-          image_url: Joi.object().required(),
+          image_url: Joi.string().required(),
         }),
         failAction: (request, h, err) => {
           return err;
@@ -101,7 +101,7 @@ const init = async () => {
           location: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
-          image_url: Joi.object().required(),
+          image_url: Joi.string().required(),
         }),
         failAction: (request, h, err) => {
           return err;

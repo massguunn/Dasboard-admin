@@ -11,17 +11,17 @@ document.addEventListener("DOMContentLoaded", () => {
     destinations.forEach((pkg) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td> ${pkg.name}</td>
-        <td> ${pkg.description}</td>
-        <td> ${pkg.location}</td>
-        <td> ${pkg.rating}</td>
-        <td> ${pkg.price}</td>
-        <td><img src="${pkg.image_url}" alt="${pkg.image_url}" width="200"></td>
-        <td class="action">
-            <button class="edit" onclick="editPackage(${pkg.id})">Edit</button>
-            <button class="delete" onclick="deletePackage(${pkg.id})">Delete</button>
-      </td>
-             `;
+          <td> ${pkg.name}</td>
+          <td> ${pkg.description}</td>
+          <td> ${pkg.location}</td>
+          <td> ${pkg.rating}</td>
+          <td> ${pkg.price}</td>
+          <td><img src="${pkg.image_url}" alt="${pkg.image_url}" width="200"></td>
+          <td class="action">
+              <button class="edit" onclick="editPackage(${pkg.id})">Edit</button>
+              <button class="delete" onclick="deletePackage(${pkg.id})">Delete</button>
+        </td>
+               `;
       packageList.appendChild(row);
     });
   }
@@ -72,19 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Delete package
   window.deletePackage = async (id) => {
-    // Tampilkan konfirmasi sebelum menghapus
-    const isConfirmed = window.confirm(
-      "Apakah Anda yakin ingin menghapus destinasi ini?"
-    );
-
-    if (isConfirmed) {
-      // Jika dikonfirmasi, lanjutkan dengan permintaan DELETE
-      await fetch(`http://localhost:3000/destinations/${id}`, {
-        method: "DELETE",
-      });
-      // Panggil kembali fetchPackages untuk memperbarui daftar paket
-      fetchPackages();
-    }
+    await fetch(`http://localhost:3000/destinations/${id}`, {
+      method: "DELETE",
+    });
+    fetchPackages();
   };
 
   fetchPackages();
