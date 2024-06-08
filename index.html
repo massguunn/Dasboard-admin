@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">TRIGUNAR TRAVEL</div>
+        <nav>
+            <p>Selamat Datang Di Dasboard Admin</p>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-content">
+            <aside>
+                <ul>
+                    <li>home</li>
+                    <span></span>
+                    <li>user</li>
+                    <span></span>
+                    <li>event</li>
+                    <li>destination</li>
+                    <li>Tri Kota</li>
+                    <li>kuliner</li>
+                </ul>
+            </aside>
+
+            <div class="content-dasboard">
+                <section class="form-section">
+                    <h2>Tambahkan data & Edit data</h2>
+                    <form id="package-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <input type="number" id="rating" name="rating" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="number" id="price" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="image_url">Gambar</label>
+                            <input id="image_url" name="image_url" type="file" accept="image/*" required>
+                        </div>
+                        <button type="submit">Save</button>
+                    </form>
+                </section>
+
+                <section class="table-section">
+                    <h2>Destination</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Location</th>
+                                <th>Rating</th>
+                                <th>price</th>
+                                <th>Img</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="package-list">
+                            <!-- Travel packages will be populated here -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <p>Trigunar Travel @ 2024</p>
+        </footer>
+        <script src="./globals/scripts.js"></script>
+    </main>
+
+</body>
+
+</html>
