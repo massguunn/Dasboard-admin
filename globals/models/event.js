@@ -19,6 +19,12 @@ const events = sequelize.define(
     location: {
       type: DataTypes.STRING,
     },
+    price: {
+      type: DataTypes.NUMBER,
+    },
+    image: {
+      type: DataTypes.STRING,
+    },
     start_date: {
       type: DataTypes.DATE,
       allowNull: false,

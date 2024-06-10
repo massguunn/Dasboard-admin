@@ -3,6 +3,7 @@ const Joi = require("joi");
 const sequelize = require("./db");
 const destinations = require("./models/destinasi");
 const events = require("./models/event");
+const kuliners = require("./models/kuliner");
 
 const init = async () => {
   const server = Hapi.server({
@@ -16,6 +17,7 @@ const init = async () => {
   // Sinkronisasi database
   await sequelize.sync();
 
+  // ================================ + Destinasi + ===============================//
   // CREATE destinasi
   server.route({
     method: "POST",
@@ -152,6 +154,7 @@ const init = async () => {
     },
   });
 
+  // ================================ + Event + ===============================//
   // untuk membuat data event
   server.route({
     method: "POST",
@@ -162,6 +165,8 @@ const init = async () => {
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          price: Joi.number().required(),
+          image: Joi.string().required(),
           start_date: Joi.date().required(),
           end_date: Joi.date()
             .required()
@@ -174,19 +179,31 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { title, description, location, start_date, end_date } =
-        request.payload;
+      const {
+        title,
+        description,
+        location,
+        price,
+        image,
+        start_date,
+        end_date,
+      } = request.payload;
+
+      console.log("Received payload:", request.payload);
+
       try {
         const event = await events.create({
           title,
           description,
           location,
+          price,
+          image,
           start_date,
           end_date,
         });
         return h.response(event).code(201);
       } catch (error) {
-        console.error("Error creating destination:", error);
+        console.error("Error creating event:", error);
         return h.response("Internal server error").code(500);
       }
     },
@@ -236,6 +253,8 @@ const init = async () => {
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          price: Joi.number().required(),
+          image: Joi.string().required(),
           start_date: Joi.date().required(),
           end_date: Joi.date()
             .required()
@@ -249,8 +268,15 @@ const init = async () => {
     },
     handler: async (request, h) => {
       const { id } = request.params;
-      const { title, description, location, start_date, end_date } =
-        request.payload;
+      const {
+        title,
+        description,
+        location,
+        price,
+        image,
+        start_date,
+        end_date,
+      } = request.payload;
       try {
         let event = await events.findByPk(id);
         if (!event) {
@@ -259,6 +285,8 @@ const init = async () => {
         event.title = title;
         event.description = description;
         event.location = location;
+        event.price = price;
+        event.image = image;
         event.start_date = start_date;
         event.end_date = end_date;
         await event.save();
@@ -286,6 +314,62 @@ const init = async () => {
       } catch (error) {
         console.error("gagal menghapus event:", error);
         return h.response("internal server error").code(500);
+      }
+    },
+  });
+
+  // ================================ + Kuliner + ===============================//
+  //create Kuliner
+  server.route({
+    method: "POST",
+    path: "/kuliners",
+    options: {
+      validate: {
+        payload: Joi.object({
+          name: Joi.string().required(),
+          description: Joi.string().required(),
+          location: Joi.string().required(),
+          price: Joi.number().required(),
+          rating: Joi.number().required(),
+          image: Joi.string().required(),
+        }),
+        failAction: (request, h, err) => {
+          return err;
+        },
+      },
+    },
+
+    handler: async (request, h) => {
+      const { name, description, location, price, rating, image } =
+        request.payload;
+      try {
+        const kuliner = await kuliners.create({
+          name,
+          description,
+          location,
+          price,
+          rating,
+          image,
+        });
+        return h.response(kuliner).code(201);
+      } catch (error) {
+        console.error("error creating kuliner:", error);
+        return h.response("internar server error").code(500);
+      }
+    },
+  });
+
+  // get all kuliners
+  server.route({
+    method: "GET",
+    path: "/kuliners",
+    handler: async (request, h) => {
+      try {
+        const kuliner = await kuliners.findAll();
+        return kuliner;
+      } catch (err) {
+        console.error("error featching kuliners:", err);
+        return h.response("Internal server error").code(500);
       }
     },
   });

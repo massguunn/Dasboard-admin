@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td> ${pkg.location}</td>
         <td> ${pkg.rating}</td>
         <td> ${pkg.price}</td>
-        <td><img src="${pkg.image_url}" alt="${pkg.image_url}" width="200"></td>
+        <td><img src="${pkg.image_url}" alt="${pkg.image_url}" width="100"></td>
         <td class="action">
             <button class="edit" onclick="editPackage(${pkg.id})">Edit</button>
             <button class="delete" onclick="deletePackage(${pkg.id})">Delete</button>
