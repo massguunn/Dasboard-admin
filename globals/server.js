@@ -1,9 +1,13 @@
 const Hapi = require("@hapi/hapi");
 const Joi = require("joi");
+const inert = require("@hapi/inert");
+const path = require("path");
+const fs = require("fs");
 const sequelize = require("./db");
 const destinations = require("./models/destinasi");
 const events = require("./models/event");
 const kuliners = require("./models/kuliner");
+const { reject } = require("assert");
 
 const init = async () => {
   const server = Hapi.server({
@@ -14,15 +18,39 @@ const init = async () => {
     },
   });
 
+  // Register Inert plugin
+  await server.register(inert);
+
   // Sinkronisasi database
   await sequelize.sync();
 
+  // Route to serve static files from the uploads directory
+  server.route({
+    method: "GET",
+    path: "/public/{param*}",
+    handler: {
+      directory: {
+        path: path.join(__dirname, "public"),
+        redirectToSlash: true,
+        index: false,
+      },
+    },
+  });
+
   // ================================ + Destinasi + ===============================//
+
   // CREATE destinasi
   server.route({
     method: "POST",
     path: "/destinations",
     options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
       validate: {
         payload: Joi.object({
           name: Joi.string().required(),
@@ -30,7 +58,7 @@ const init = async () => {
           location: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
-          image_url: Joi.string().required(),
+          image_url: Joi.any().meta({ swaggerType: "file" }).optional(),
         }),
         failAction: (request, h, err) => {
           return err;
@@ -38,18 +66,50 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { name, description, location, rating, price, image_url } =
-        request.payload;
+      const { name, description, location, rating, price } = request.payload;
+      const image = request.payload.image_url;
+
+      let imageUrl = null;
+
+      if (image) {
+        const filename = `${Date.now()}-${image.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          }); // Buat direktori "public" secara rekursif jika belum ada
+          const fileStream = fs.createWriteStream(uploadPath); // Gunakan fs.createWriteStream tanpa .promises
+
+          await new Promise((resolve, reject) => {
+            image.pipe(fileStream);
+            image.on("end", () => {
+              fileStream.end(); // Pastikan stream diakhiri
+              resolve();
+            });
+            image.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+
+          imageUrl = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
+        }
+      }
+
       try {
-        const destinasi = await destinations.create({
+        const destination = await destinations.create({
           name,
           description,
           location,
           rating,
           price,
-          image_url,
+          image_url: imageUrl,
         });
-        return h.response(destinasi).code(201);
+        return h.response(destination).code(201);
       } catch (error) {
         console.error("Error creating destination:", error);
         return h.response("Internal server error").code(500);
@@ -91,11 +151,18 @@ const init = async () => {
     },
   });
 
-  // UPDATE destinasi
+  // PUT destinasi
   server.route({
     method: "PUT",
     path: "/destinations/{id}",
     options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
       validate: {
         payload: Joi.object({
           name: Joi.string().required(),
@@ -103,7 +170,7 @@ const init = async () => {
           location: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
-          image_url: Joi.string().required(),
+          image_url: Joi.any().meta({ swaggerType: "file" }).optional(),
         }),
         failAction: (request, h, err) => {
           return err;
@@ -111,22 +178,57 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { id } = request.params;
-      const { name, description, location, rating, price, image_url } =
-        request.payload;
-      try {
-        let destinasi = await destinations.findByPk(id);
-        if (!destinasi) {
-          return h.response({ error: "Destination not found" }).code(404);
+      const id = request.params.id;
+      const { name, description, location, rating, price } = request.payload;
+      const image = request.payload.image_url;
+
+      let imageUrl = null;
+
+      if (image) {
+        const filename = `${Date.now()}-${image.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          });
+          const fileStream = fs.createWriteStream(uploadPath);
+
+          await new Promise((resolve, reject) => {
+            image.pipe(fileStream);
+            image.on("end", () => {
+              fileStream.end();
+              resolve();
+            });
+            image.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+
+          imageUrl = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
         }
-        destinasi.name = name;
-        destinasi.description = description;
-        destinasi.location = location;
-        destinasi.rating = rating;
-        destinasi.price = price;
-        destinasi.image_url = image_url;
-        await destinasi.save();
-        return destinasi;
+      }
+
+      try {
+        const destination = await destinations.update(
+          {
+            // Asumsi ada method update
+            name,
+            description,
+            location,
+            rating,
+            price,
+            image_url: imageUrl,
+          },
+          {
+            where: { id },
+          }
+        );
+        return h.response(destination).code(200);
       } catch (error) {
         console.error("Error updating destination:", error);
         return h.response("Internal server error").code(500);
@@ -160,13 +262,20 @@ const init = async () => {
     method: "POST",
     path: "/events",
     options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
       validate: {
         payload: Joi.object({
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
           price: Joi.number().required(),
-          image: Joi.string().required(),
+          image: Joi.any().meta({ swaggerType: "file" }).optional(),
           start_date: Joi.date().required(),
           end_date: Joi.date()
             .required()
@@ -179,17 +288,39 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const {
-        title,
-        description,
-        location,
-        price,
-        image,
-        start_date,
-        end_date,
-      } = request.payload;
+      const { title, description, location, price, start_date, end_date } =
+        request.payload;
+      const images = request.payload.image;
 
-      console.log("Received payload:", request.payload);
+      let image = null;
+
+      if (images) {
+        const filename = `${Date.now()}-${images.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          });
+          const fileStream = fs.createWriteStream(uploadPath);
+
+          await new Promise((resolve, reject) => {
+            images.pipe(fileStream);
+            images.on("end", () => {
+              fileStream.end();
+              resolve();
+            });
+            images.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+          image = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
+        }
+      }
 
       try {
         const event = await events.create({
@@ -197,7 +328,7 @@ const init = async () => {
           description,
           location,
           price,
-          image,
+          image: image,
           start_date,
           end_date,
         });
@@ -248,13 +379,20 @@ const init = async () => {
     method: "PUT",
     path: "/events/{id}",
     options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
       validate: {
         payload: Joi.object({
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
           price: Joi.number().required(),
-          image: Joi.string().required(),
+          image: Joi.any().meta({ swaggerType: "file" }).optional(),
           start_date: Joi.date().required(),
           end_date: Joi.date()
             .required()
@@ -268,31 +406,58 @@ const init = async () => {
     },
     handler: async (request, h) => {
       const { id } = request.params;
-      const {
-        title,
-        description,
-        location,
-        price,
-        image,
-        start_date,
-        end_date,
-      } = request.payload;
-      try {
-        let event = await events.findByPk(id);
-        if (!event) {
-          return h.response({ error: "event not found" }).code(404);
+      const { title, description, location, price, start_date, end_date } =
+        request.payload;
+
+      const images = request.payload.image;
+
+      let image = null;
+
+      if (images) {
+        const filename = `${Date.now()}-${images.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          });
+          const fileStream = fs.createWriteStream(uploadPath);
+
+          await new Promise((resolve, reject) => {
+            images.pipe(fileStream);
+            images.on("end", () => {
+              fileStream.end();
+              resolve();
+            });
+            images.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+          image = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
         }
-        event.title = title;
-        event.description = description;
-        event.location = location;
-        event.price = price;
-        event.image = image;
-        event.start_date = start_date;
-        event.end_date = end_date;
-        await event.save();
-        return event;
+      }
+      try {
+        const event = await events.update(
+          {
+            title,
+            description,
+            location,
+            price,
+            image: image,
+            start_date,
+            end_date,
+          },
+          {
+            where: { id },
+          }
+        );
+        return h.response(events).code(200);
       } catch (error) {
-        console.error("Error creating destination:", error);
+        console.error("Error update events:", error);
         return h.response("Internal server error").code(500);
       }
     },

@@ -1,8 +1,8 @@
 const sequelize = require("../db");
 const { DataTypes } = require("sequelize");
 
-const events = sequelize.define(
-  "events",
+const Event = sequelize.define(
+  "Event",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -20,7 +20,11 @@ const events = sequelize.define(
       type: DataTypes.STRING,
     },
     price: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.FLOAT, // Mengubah tipe data menjadi FLOAT untuk harga
+      allowNull: false,
+      validate: {
+        min: 0, // Menambahkan validasi bahwa harga harus non-negatif
+      },
     },
     image: {
       type: DataTypes.STRING,
@@ -31,23 +35,30 @@ const events = sequelize.define(
     },
     end_date: {
       type: DataTypes.DATE,
+      allowNull: false, // Mengubah agar end_date wajib diisi
+      validate: {
+        isAfterStart(value) {
+          if (value <= this.start_date) {
+            throw new Error("End date must be after start date");
+          }
+        },
+      },
     },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       allowNull: false,
-      field: "created_at", // Define the column name explicitly to match the database
     },
     updated_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       allowNull: false,
-      field: "updated_at", // Define the column name explicitly to match the database
     },
   },
   {
+    tableName: "events", // Menentukan nama tabel secara eksplisit
     timestamps: false,
   }
 );
 
-module.exports = events;
+module.exports = Event;
