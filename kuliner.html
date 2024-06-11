@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">TRIGUNAR TRAVEL</div>
+        <nav>
+            <p>Selamat Datang Di Dasboard Admin</p>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-content">
+            <aside>
+                <ul>
+                    <li> <a href="index.html">Home</a></li>
+                    <span></span>
+                    <li>user</li>
+                    <span></span>
+                    <li><a href="event.html">Event</a></li>
+                    <li>destination</li>
+                    <li>Tri Kota</li>
+                    <li>kuliner</li>
+                </ul>
+            </aside>
+
+            <div class="content-dasboard">
+                <section class="form-section">
+                    <h2>Tambahkan data & Edit data</h2>
+                    <form id="package-form-kuliner" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="title">Name</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="number" id="price" name="price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <input type="number" id="rating" name="rating" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Gambar</label>
+                            <input id="image" name="image" type="file" required>
+                        </div>
+                        <button type="submit">Save</button>
+                    </form>
+                </section>
+
+
+                <section class="table-section">
+                    <h2>Event</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Location</th>
+                                <th>price</th>
+                                <th>Gambar</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="package-list-kuliner">
+                            <!-- Travel packages will be populated here -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <p>Trigunar Travel @ 2024</p>
+        </footer>
+        <script src="./globals/kuliner.js"></script>
+    </main>
+
+</body>
+
+</html>
