@@ -7,7 +7,6 @@ const sequelize = require("./db");
 const destinations = require("./models/destinasi");
 const events = require("./models/event");
 const kuliners = require("./models/kuliner");
-const { reject } = require("assert");
 
 const init = async () => {
   const server = Hapi.server({
@@ -484,47 +483,85 @@ const init = async () => {
   });
 
   // ================================ + Kuliner + ===============================//
-  //create Kuliner
+  // CREATE Kuliner
   server.route({
     method: "POST",
     path: "/kuliners",
     options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
       validate: {
         payload: Joi.object({
           name: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
-          price: Joi.number().required(),
           rating: Joi.number().required(),
-          image: Joi.string().required(),
+          price: Joi.number().required(),
+          image: Joi.any().meta({ swaggerType: "file" }).optional(),
         }),
         failAction: (request, h, err) => {
           return err;
         },
       },
     },
-
     handler: async (request, h) => {
-      const { name, description, location, price, rating, image } =
-        request.payload;
+      const { name, description, location, rating, price } = request.payload;
+      const image = request.payload.image;
+
+      let images = null;
+
+      if (image) {
+        const filename = `${Date.now()}-${image.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          }); // Buat direktori "public" secara rekursif jika belum ada
+          const fileStream = fs.createWriteStream(uploadPath); // Gunakan fs.createWriteStream tanpa .promises
+
+          await new Promise((resolve, reject) => {
+            image.pipe(fileStream);
+            image.on("end", () => {
+              fileStream.end(); // Pastikan stream diakhiri
+              resolve();
+            });
+            image.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+
+          images = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
+        }
+      }
+
       try {
         const kuliner = await kuliners.create({
           name,
           description,
           location,
-          price,
           rating,
-          image,
+          price,
+          image: images,
         });
         return h.response(kuliner).code(201);
       } catch (error) {
-        console.error("error creating kuliner:", error);
-        return h.response("internar server error").code(500);
+        console.error("Error creating destination:", error);
+        return h.response("Internal server error").code(500);
       }
     },
   });
 
-  // get all kuliners
+  // untuk Get All Kuliner
   server.route({
     method: "GET",
     path: "/kuliners",
@@ -533,12 +570,135 @@ const init = async () => {
         const kuliner = await kuliners.findAll();
         return kuliner;
       } catch (err) {
-        console.error("error featching kuliners:", err);
+        console.error("Error fetching destinations:", err);
         return h.response("Internal server error").code(500);
       }
     },
   });
 
+  // untuk Get by ID Kuliner
+  server.route({
+    method: "GET",
+    path: "/kuliners/{id}",
+    handler: async (request, h) => {
+      const { id } = request.params;
+      try {
+        const kuliner = await kuliners.findByPk(id);
+        if (!kuliner) {
+          return h.response({ error: "Destination not found" }).code(404);
+        }
+        return kuliner;
+      } catch (error) {
+        console.error("Error fetching destination:", error);
+        return h.response("Internal server error").code(500);
+      }
+    },
+  });
+
+  // PUT destinasi
+  server.route({
+    method: "PUT",
+    path: "/kuliners/{id}",
+    options: {
+      payload: {
+        output: "stream",
+        parse: true,
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 50 * 1024 * 1024, // 50MB
+      },
+      validate: {
+        payload: Joi.object({
+          name: Joi.string().required(),
+          description: Joi.string().required(),
+          location: Joi.string().required(),
+          rating: Joi.number().required(),
+          price: Joi.number().required(),
+          image: Joi.any().meta({ swaggerType: "file" }).optional(),
+        }),
+        failAction: (request, h, err) => {
+          return err;
+        },
+      },
+    },
+    handler: async (request, h) => {
+      const id = request.params.id;
+      const { name, description, location, rating, price } = request.payload;
+      const image = request.payload.image;
+
+      let images = null;
+
+      if (image) {
+        const filename = `${Date.now()}-${image.hapi.filename}`;
+        const uploadPath = path.join(__dirname, "public", filename);
+
+        try {
+          await fs.promises.mkdir(path.join(__dirname, "public"), {
+            recursive: true,
+          });
+          const fileStream = fs.createWriteStream(uploadPath);
+
+          await new Promise((resolve, reject) => {
+            image.pipe(fileStream);
+            image.on("end", () => {
+              fileStream.end();
+              resolve();
+            });
+            image.on("error", (err) => {
+              fileStream.end();
+              reject(err);
+            });
+          });
+
+          images = `http://localhost:3000/public/${filename}`;
+        } catch (error) {
+          console.error("Error saving image:", error);
+          return h.response("Internal server error").code(500);
+        }
+      }
+
+      try {
+        const kuliner = await kuliners.update(
+          {
+            // Asumsi ada method update
+            name,
+            description,
+            location,
+            rating,
+            price,
+            image: images,
+          },
+          {
+            where: { id },
+          }
+        );
+        return h.response(kuliner).code(200);
+      } catch (error) {
+        console.error("Error updating destination:", error);
+        return h.response("Internal server error").code(500);
+      }
+    },
+  });
+
+  // DELETE destinasi
+  server.route({
+    method: "DELETE",
+    path: "/kuliners/{id}",
+    handler: async (request, h) => {
+      const { id } = request.params;
+      try {
+        const kuliner = await kuliners.findByPk(id);
+        if (!kuliner) {
+          return h.response({ error: "Destination not found" }).code(404);
+        }
+        await kuliner.destroy();
+        return { message: "Destination deleted" };
+      } catch (error) {
+        console.error("Error deleting destination:", error);
+        return h.response("Internal server error").code(500);
+      }
+    },
+  });
   await server.start();
   console.log("Server running on %s", server.info.uri);
 };
