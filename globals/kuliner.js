@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         row.innerHTML = `
             <td>${pkg.name}</td>
             <td>${pkg.description}</td>
-            <td>${pkg.location}</td>
+            <td><iframe src="${pkg.location}" width="600" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></td>
             <td>${pkg.rating}</td>
             <td>${pkg.price}</td>
             <td><img src="${pkg.image}" alt="${pkg.image}" width="100"></td>
