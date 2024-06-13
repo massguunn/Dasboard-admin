@@ -16,6 +16,9 @@ const destinations = sequelize.define(
     description: {
       type: DataTypes.TEXT,
     },
+    city: {
+      type: DataTypes.STRING,
+    },
     location: {
       type: DataTypes.STRING,
     },

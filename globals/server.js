@@ -55,6 +55,7 @@ const init = async () => {
           name: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
           image_url: Joi.any().meta({ swaggerType: "file" }).optional(),
@@ -65,7 +66,8 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { name, description, location, rating, price } = request.payload;
+      const { name, description, location, city, rating, price } =
+        request.payload;
       const image = request.payload.image_url;
 
       let imageUrl = null;
@@ -104,6 +106,7 @@ const init = async () => {
           name,
           description,
           location,
+          city,
           rating,
           price,
           image_url: imageUrl,
@@ -167,6 +170,7 @@ const init = async () => {
           name: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
           image_url: Joi.any().meta({ swaggerType: "file" }).optional(),
@@ -178,7 +182,8 @@ const init = async () => {
     },
     handler: async (request, h) => {
       const id = request.params.id;
-      const { name, description, location, rating, price } = request.payload;
+      const { name, description, location, city, rating, price } =
+        request.payload;
       const image = request.payload.image_url;
 
       let imageUrl = null;
@@ -219,6 +224,7 @@ const init = async () => {
             name,
             description,
             location,
+            city,
             rating,
             price,
             image_url: imageUrl,
@@ -273,6 +279,7 @@ const init = async () => {
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           price: Joi.number().required(),
           image: Joi.any().meta({ swaggerType: "file" }).optional(),
           start_date: Joi.date().required(),
@@ -287,8 +294,15 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { title, description, location, price, start_date, end_date } =
-        request.payload;
+      const {
+        title,
+        description,
+        location,
+        city,
+        price,
+        start_date,
+        end_date,
+      } = request.payload;
       const images = request.payload.image;
 
       let image = null;
@@ -326,6 +340,7 @@ const init = async () => {
           title,
           description,
           location,
+          city,
           price,
           image: image,
           start_date,
@@ -390,6 +405,7 @@ const init = async () => {
           title: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           price: Joi.number().required(),
           image: Joi.any().meta({ swaggerType: "file" }).optional(),
           start_date: Joi.date().required(),
@@ -405,8 +421,15 @@ const init = async () => {
     },
     handler: async (request, h) => {
       const { id } = request.params;
-      const { title, description, location, price, start_date, end_date } =
-        request.payload;
+      const {
+        title,
+        description,
+        location,
+        city,
+        price,
+        start_date,
+        end_date,
+      } = request.payload;
 
       const images = request.payload.image;
 
@@ -445,6 +468,7 @@ const init = async () => {
             title,
             description,
             location,
+            city,
             price,
             image: image,
             start_date,
@@ -500,6 +524,7 @@ const init = async () => {
           name: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
           image: Joi.any().meta({ swaggerType: "file" }).optional(),
@@ -510,7 +535,8 @@ const init = async () => {
       },
     },
     handler: async (request, h) => {
-      const { name, description, location, rating, price } = request.payload;
+      const { name, description, location, city, rating, price } =
+        request.payload;
       const image = request.payload.image;
 
       let images = null;
@@ -549,6 +575,7 @@ const init = async () => {
           name,
           description,
           location,
+          city,
           rating,
           price,
           image: images,
@@ -612,6 +639,7 @@ const init = async () => {
           name: Joi.string().required(),
           description: Joi.string().required(),
           location: Joi.string().required(),
+          city: Joi.string().required(),
           rating: Joi.number().required(),
           price: Joi.number().required(),
           image: Joi.any().meta({ swaggerType: "file" }).optional(),
@@ -623,7 +651,8 @@ const init = async () => {
     },
     handler: async (request, h) => {
       const id = request.params.id;
-      const { name, description, location, rating, price } = request.payload;
+      const { name, description, location, city, rating, price } =
+        request.payload;
       const image = request.payload.image;
 
       let images = null;
@@ -664,6 +693,7 @@ const init = async () => {
             name,
             description,
             location,
+            city,
             rating,
             price,
             image: images,

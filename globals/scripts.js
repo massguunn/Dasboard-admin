@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${pkg.name}</td>
           <td>${pkg.description}</td>
           <td>${pkg.location}</td>
+          <td>${pkg.city}</td>
           <td>${pkg.rating}</td>
           <td>${pkg.price}</td>
           <td><img src="${pkg.image_url}" alt="${pkg.image_url}" width="100"></td>
@@ -66,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("name").value = pkg.name;
       document.getElementById("description").value = pkg.description;
       document.getElementById("location").value = pkg.location;
+      document.getElementById("city").value = pkg.city;
       document.getElementById("rating").value = pkg.rating;
       document.getElementById("price").value = pkg.price;
 

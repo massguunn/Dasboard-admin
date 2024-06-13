@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td> ${pkg.title}</td>
           <td> ${pkg.description}</td>
           <td> ${pkg.location}</td>
+          <td> ${pkg.city}</td>
           <td> ${pkg.price}</td>
           <td> ${pkg.start_date}</td>
           <td> ${pkg.end_date}</td>
@@ -155,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("title").value = pkg.title;
       document.getElementById("description").value = pkg.description;
       document.getElementById("location").value = pkg.location;
+      document.getElementById("city").value = pkg.city;
       document.getElementById("price").value = pkg.price;
       document.getElementById("start_date").value =
         pkg.start_date.split("T")[0]; // Format tanggal

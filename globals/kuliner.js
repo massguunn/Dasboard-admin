@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
         row.innerHTML = `
             <td>${pkg.name}</td>
             <td>${pkg.description}</td>
-            <td><iframe src="${pkg.location}" width="600" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></td>
+            <td><${pkg.location}</td>
+            <td> ${pkg.city}</td>
             <td>${pkg.rating}</td>
             <td>${pkg.price}</td>
             <td><img src="${pkg.image}" alt="${pkg.image}" width="100"></td>
@@ -66,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("name").value = pkg.name;
       document.getElementById("description").value = pkg.description;
       document.getElementById("location").value = pkg.location;
+      document.getElementById("city").value = pkg.location;
       document.getElementById("rating").value = pkg.rating;
       document.getElementById("price").value = pkg.price;
 

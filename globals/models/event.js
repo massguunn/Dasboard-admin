@@ -19,6 +19,9 @@ const Event = sequelize.define(
     location: {
       type: DataTypes.STRING,
     },
+    city: {
+      type: DataTypes.STRING,
+    },
     price: {
       type: DataTypes.FLOAT, // Mengubah tipe data menjadi FLOAT untuk harga
       allowNull: false,
